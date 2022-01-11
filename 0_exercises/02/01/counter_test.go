@@ -1,6 +1,7 @@
 package counting_test
 
 import (
+	"bytes"
 	"counting"
 	"testing"
 )
@@ -23,5 +24,6 @@ func TestNext(t *testing.T) {
 
 func TestRun(t *testing.T) {
 	t.Parallel()
+	fakeTerminal := bytes.NewBuffer(make([]byte, 0, 108))
 
 }
