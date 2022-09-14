@@ -1,5 +1,9 @@
 package main
 
-func main() {
+import (
+	"hello"
+)
 
+func main() {
+	hello.Print()
 }
