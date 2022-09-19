@@ -1,16 +1,22 @@
 package count_test
 
 import (
+	"bytes"
 	"count"
-	"strings"
 	"testing"
 )
 
 func TestLines(t *testing.T) {
 	t.Parallel()
-	input := strings.NewReader("1\n0\n8")
+	inputBuf := bytes.NewBufferString("1\n0\n8")
+	c, err := count.NewCounter(
+		count.WithInput(inputBuf),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
 	want := 3
-	got := count.LinesFrom(input)
+	got := c.Lines()
 	if want != got {
 		t.Errorf("want %d, got %d", want, got)
 	}
