@@ -3,6 +3,8 @@ package count
 import (
 	"bufio"
 	"errors"
+	"flag"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -11,8 +13,9 @@ import (
 type option func(*counter) error
 
 type counter struct {
-	input  io.Reader
-	output io.Writer
+	input     io.Reader
+	output    io.Writer
+	wordCount bool
 }
 
 func (c counter) Lines() int {
@@ -34,9 +37,23 @@ func (c counter) Words() int {
 	return words
 }
 
+func RunCLI() {
+	c, err := NewCounter(
+		FromArgs(os.Args[1:]),
+	)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	if c.wordCount {
+		fmt.Println(c.Words())
+	} else {
+		fmt.Println(c.Lines())
+	}
+}
+
 func Lines() int {
 	c, err := NewCounter(
-		WithInputFromArgs(os.Args[1:]),
+		FromArgs(os.Args[1:]),
 	)
 	if err != nil {
 		log.Fatalln(err)
@@ -46,7 +63,7 @@ func Lines() int {
 
 func Words() int {
 	c, err := NewCounter(
-		WithInputFromArgs(os.Args[1:]),
+		FromArgs(os.Args[1:]),
 	)
 	if err != nil {
 		log.Fatalln(err)
@@ -88,9 +105,18 @@ func WithOutput(output io.Writer) option {
 	}
 }
 
-func WithInputFromArgs(args []string) option {
+func FromArgs(args []string) option {
 	return func(c *counter) error {
-		if len(args) == 0 {
+		fset := flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+		wordCount := fset.Bool("w", false, "Count words instead of lines")
+		fset.SetOutput(c.output)
+		err := fset.Parse(args)
+		if err != nil {
+			return err
+		}
+		c.wordCount = *wordCount
+		args = fset.Args()
+		if len(args) < 1 {
 			return nil
 		}
 		f, err := os.Open(args[0])
