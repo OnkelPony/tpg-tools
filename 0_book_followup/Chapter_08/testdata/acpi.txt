@@ -1,0 +1,2 @@
+Battery 0: Full, 100%
+Battery 0: design capacity 5000 mAh, last full capacity 5000 mAh = 100%
