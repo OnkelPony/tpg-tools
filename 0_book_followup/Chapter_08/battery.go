@@ -2,6 +2,7 @@ package battery
 
 import (
 	"fmt"
+	"os/exec"
 	"regexp"
 	"strconv"
 )
@@ -11,6 +12,14 @@ type Status struct {
 }
 
 var r = regexp.MustCompile("([0-9]+)%")
+
+func GetStatus() (Status, error) {
+	text, err := GetAcpiOutput()
+	if err != nil {
+		return Status{}, err
+	}
+	return ParseAcpiOutput(text)
+}
 
 func ParseAcpiOutput(acpiOutput string) (Status, error) {
 	m := r.FindStringSubmatch(acpiOutput)
@@ -22,4 +31,12 @@ func ParseAcpiOutput(acpiOutput string) (Status, error) {
 		return Status{}, fmt.Errorf("failed to parse charge percentage: %q", m[1])
 	}
 	return Status{ChargePercent: charge}, nil
+}
+
+func GetAcpiOutput() (string, error) {
+	data, err := exec.Command("/usr/bin/acpi", "-i").CombinedOutput()
+	if err != nil {
+		return "", err
+	}
+	return string(data), nil
 }
