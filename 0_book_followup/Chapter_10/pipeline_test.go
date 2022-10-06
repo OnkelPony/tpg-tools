@@ -1,0 +1,24 @@
+package pipeline_test
+
+import (
+	"bytes"
+	"github.com/google/go-cmp/cmp"
+	"pipeline"
+	"testing"
+)
+
+func TestStdout(t *testing.T) {
+	t.Parallel()
+	want := "Hello world\n"
+	p := pipeline.FromString(want)
+	buf := &bytes.Buffer{}
+	p.Output = buf
+	p.Stdout()
+	if p.Error != nil {
+		t.Fatal(p.Error)
+	}
+	got := buf.String()
+	if !cmp.Equal(want, got) {
+		t.Errorf("want: %q, got: %q", want, got)
+	}
+}
